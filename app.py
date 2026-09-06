@@ -62,6 +62,7 @@ def send_email(to, subject, html, reply_to=None):
     target = reply_to or EMAIL_REPLY_TO
     if target:
         payload["reply_to"] = target
+    app.logger.warning(f"DEBUG clé Resend (10 premiers car.) = '{RESEND_API_KEY[:10]}' | longueur = {len(RESEND_API_KEY)}")
     resp = requests.post(
         "https://api.resend.com/emails",
         headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
