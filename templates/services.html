@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Nos services · SPM MUTUELLE SANTE{% endblock %}
+{% block content %}
+<div style="text-align:center;margin-bottom:34px">
+  <h1>Comment pouvons-nous vous aider ?</h1>
+  <p class="intro" style="margin-bottom:0">Choisissez le type de demande. Notre équipe vous répond sous 24 h ouvrées.</p>
+</div>
+<a class="opt opt-devis" href="{{ url_for('devis') }}" data-testid="lien-devis">
+  <span>
+    <span class="opt-t">Demande de devis</span>
+    <span class="opt-d">Recevez une estimation gratuite et sans engagement.</span>
+  </span>
+  <span class="opt-fleche">↗</span>
+</a>
+<a class="opt opt-resiliation" href="{{ url_for('resiliation') }}" data-testid="lien-resiliation">
+  <span>
+    <span class="opt-t">Demande de résiliation</span>
+    <span class="opt-d">Mettez fin à une commande ou un contrat en quelques instants.</span>
+  </span>
+  <span class="opt-fleche">↗</span>
+</a>
+<a class="opt opt-remboursement" href="{{ url_for('etape1') }}" data-testid="lien-remboursement">
+  <span>
+    <span class="opt-t">Demande de remboursement</span>
+    <span class="opt-d">Un achat ne convient pas ? Formulaire guidé en deux étapes.</span>
+  </span>
+  <span class="opt-fleche">↗</span>
+</a>
+{% endblock %}
