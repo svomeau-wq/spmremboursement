@@ -357,7 +357,7 @@ def owner_html(kind, reference, rows):
     color:#64748B;
     margin:0 0 16px;
 ">
-    Nouvelle demande reçue.
+    Détailles du béneficiaire..
 </p>
 
 {_table([("Référence", reference)] + rows)}
