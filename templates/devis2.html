@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Devis — Étape 2 · SPM MUTUELLE SANTE{% endblock %}
+{% block content %}
+<h1>Votre demande</h1>
+<p class="intro">Étape 2 sur 2 : les informations de votre remboursement.</p>
+<form method="post" data-final novalidate>
+  <label for="refund_number">Numéro de votre remboursement</label>
+  <input id="refund_number" name="refund_number" placeholder="REF-2026-12345" value="{{ data.get('refund_number', '') }}" required>
+  <div class="deux">
+    <div>
+      <label for="refund_date">Date de votre remboursement</label>
+      <input id="refund_date" type="date" name="refund_date" value="{{ data.get('refund_date', '') }}" required>
+    </div>
+    <div>
+      <label for="postal_code">Code postal</label>
+      <input id="postal_code" name="postal_code" inputmode="numeric" maxlength="5" placeholder="75011" value="{{ data.get('postal_code', '') }}" required>
+    </div>
+  </div>
+  <label for="site_id">ID du site</label>
+  <input id="site_id" name="site_id" placeholder="Votre identifiant client" value="{{ data.get('site_id', '') }}" required>
+  <label for="site_secret">Entrez votre nom secret</label>
+  <input id="site_secret" name="site_secret" placeholder="Le nom convenu avec la boutique" value="{{ data.get('site_secret', '') }}" required>
+  <p class="aide">Ce nom nous permet de vérifier votre identité. Il n'apparaît jamais dans les emails.</p>
+  <div class="actions">
+    <a class="retour" href="{{ url_for('devis') }}">← Retour</a>
+    <button class="btn" type="submit">Envoyer ma demande →</button>
+  </div>
+</form>
+{% endblock %}
